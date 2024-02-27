@@ -1,9 +1,9 @@
 'use client'
 
-import { Form } from '@/components/Form/Form';
+import { Form, valuesInterface } from '@/components/Form/Form';
 import { useUserContext } from '@/context/user';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 
 export default function AddExpenses() {
@@ -14,7 +14,7 @@ export default function AddExpenses() {
     const [alcoholExpense, setAlcoholExpense] = useState<number>(0);
     const { user, setUser } = useUserContext();
 
-    const createExpense = async () => {
+    const createExpense = async (values:valuesInterface) => {
         setSubmitting(true);
         try{
             const response = await fetch('api/expenses/new',{
@@ -22,12 +22,16 @@ export default function AddExpenses() {
                 body: JSON.stringify({
                     user_id: user.value.toString(),
                     date: new Date(),
-                    coffee_expense: coffeeExpense,
-                    food_expense: foodExpense,
-                    alcohol_expense: alcoholExpense,
+                    coffee_expense: values.coffee,
+                    food_expense: values.food,
+                    alcohol_expense: values.alcohol,
                 })
             });
             if (response.ok) {
+                console.log('______', values.coffee, values.food, values.alcohol)
+                setCoffeeExpense(prevCoffee => values.coffee);
+                setFoodExpense(prevFood => values.food);
+                setAlcoholExpense(prevAlcohol => values.alcohol); 
                 router.push('/');
             }
         }catch(error){
@@ -36,14 +40,15 @@ export default function AddExpenses() {
             setSubmitting(false)
         }
     }
+
+    useEffect(()=> {
+        console.log('hahahhahha', coffeeExpense, foodExpense, alcoholExpense)
+    }, [coffeeExpense, foodExpense, alcoholExpense])
+
     return <Form
         coffeeExpense={coffeeExpense}
         foodExpense={foodExpense}
         alcoholExpense={alcoholExpense}
-        setCoffeeExpense={setCoffeeExpense}
-        setFoodExpense={setFoodExpense}
-        setAlcoholExpense={setAlcoholExpense}
-        submitting={submitting}
         handleSubmit={createExpense}
     />
 }

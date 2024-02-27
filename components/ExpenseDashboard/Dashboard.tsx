@@ -5,6 +5,7 @@ import Link from 'next/link';
 import classes from './Dashboard.module.css';
 import { useEffect, useState } from 'react';
 import { useUserContext } from '@/context/user';
+import { compareAsc, format } from 'date-fns';
 
 export const ExpenseDashboard = () => {
     const [users, setUsers] = useState(null);
@@ -17,13 +18,26 @@ export const ExpenseDashboard = () => {
     const [alcoholWOW, setAlcoholWOW] = useState<number>(0);
     const [haveRecord, setHaveRecord] = useState<boolean>(false);
 
+    type userInterface = {
+        user_id: string,
+    }
+
+    type expenseInterface = {
+        id: string,
+        user_id: string,
+        date: Date,
+        coffee_expense: number,
+        food_expense: number,
+        alcohol_expense: number,
+    }
+
     const getUsers = async () => {
         const response = await fetch('api/users');
         if (!response.ok) {
             throw new Error(`Error: ${response.status}`);
         }
         const data = await response.json();
-        const userIds = data.map(user => (user.user_id).toString());
+        const userIds = data.map((user: userInterface) => (user.user_id).toString());
         setUsers(userIds);
     }
 
@@ -33,54 +47,48 @@ export const ExpenseDashboard = () => {
             throw new Error(`Error: ${response.status}`);
         }
         const data = await response.json();
-        const currentUserExpenses = data.filter(expense => Number(expense.user_id) === Number(user?.value));
-        const sortedCurrentUserExpenses = currentUserExpenses.sort((a, b) => a.date - b.date);
+        const currentUserExpenses = data.filter((expense: expenseInterface) => Number(expense.user_id) === Number(user?.value));
+        const sortedCurrentUserExpenses = currentUserExpenses.sort((a: expenseInterface, b: expenseInterface) => compareAsc(new Date(a.date), new Date(b.date)));
         const newExpenses = sortedCurrentUserExpenses.slice(-7);
-        console.log('new expenses are', sortedCurrentUserExpenses);
+        // console.log('new expenses are', newExpenses[0].date);
         const prevExpenses = sortedCurrentUserExpenses.slice(Math.max(0, sortedCurrentUserExpenses.length - 8 - 7), sortedCurrentUserExpenses.length - 8 + 1);
-        console.log('prev expenses are', prevExpenses);
+        // console.log('prev expenses are', prevExpenses);
 
         //coffee expense
-        const _new_coffee_expense = newExpenses.reduce((prev, cur) => prev + Number(cur.coffee_expense), 0);
-        console.log(_new_coffee_expense);
+        const _new_coffee_expense = newExpenses.reduce((prev: number, cur: expenseInterface) => prev + Number(cur.coffee_expense), 0);
+        // console.log(_new_coffee_expense);
         setNewCoffeeExpense(_new_coffee_expense);
-        const prev_coffee_expense = prevExpenses.reduce((prev, cur) => prev + Number(cur.coffee_expense), 0);
-        console.log(prev_coffee_expense);
+        const prev_coffee_expense = prevExpenses.reduce((prev: number, cur: expenseInterface) => prev + Number(cur.coffee_expense), 0);
+        // console.log(prev_coffee_expense);
         const _coffeeWoW = (newCoffeeExpense / 7 - (prev_coffee_expense / prevExpenses.length)) / (newCoffeeExpense / 7);
-        console.log('....', _coffeeWoW);
+        // console.log('....', _coffeeWoW);
         setCoffeeWOW(_coffeeWoW);
 
         //food expense
-        const _new_food_expense = newExpenses.reduce((prev, cur) => prev + Number(cur.food_expense), 0);
-        console.log('food', _new_food_expense);
+        const _new_food_expense = newExpenses.reduce((prev: number, cur: expenseInterface) => prev + Number(cur.food_expense), 0);
+        // console.log('food', _new_food_expense);
         setNewFoodExpense(_new_food_expense);
-        const prev_food_expense = prevExpenses.reduce((prev, cur) => prev + Number(cur.food_expense), 0);
-        console.log(prev_food_expense);
+        const prev_food_expense = prevExpenses.reduce((prev: number, cur: expenseInterface) => prev + Number(cur.food_expense), 0);
+        // console.log(prev_food_expense);
         const _foodWoW = (newFoodExpense / 7 - (prev_food_expense / prevExpenses.length)) / (newFoodExpense / 7);
-        console.log('....', _foodWoW);
+        // console.log('....', _foodWoW);
         setFoodWOW(_foodWoW);
 
         //alcohol expense
-        const _new_alcohol_expense = newExpenses.reduce((prev, cur) => prev + Number(cur.alcohol_expense), 0);
-        console.log('alcohol', _new_alcohol_expense);
+        const _new_alcohol_expense = newExpenses.reduce((prev: number, cur: expenseInterface) => prev + Number(cur.alcohol_expense), 0);
+        // console.log('alcohol', _new_alcohol_expense);
         setNewAlcoholExpense(_new_alcohol_expense);
-        const prev_alcohol_expense = prevExpenses.reduce((prev, cur) => prev + Number(cur.alcohol_expense), 0);
-        console.log(prev_alcohol_expense);
+        const prev_alcohol_expense = prevExpenses.reduce((prev: number, cur: expenseInterface) => prev + Number(cur.alcohol_expense), 0);
+        // console.log(prev_alcohol_expense);
         const _alcoholWoW = (newAlcoholExpense / 7 - (prev_alcohol_expense / prevExpenses.length)) / (newAlcoholExpense / 7);
-        console.log('....', _alcoholWoW);
+        // console.log('....', _alcoholWoW);
         setAlcoholWOW(_alcoholWoW);
 
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        let mm = (today.getMonth() + 1).toString(); 
-        let dd = (today.getDate() - 2).toString();
-        mm = Number(mm) < 10 ? `0${mm}` : mm;
-        dd = Number(dd) < 10 ? `0${dd}` : dd;
-        const todayStr = `${yyyy}-${mm}-${dd}`;
-        const _haveRecord = currentUserExpenses.find(expense => expense.date.toString().slice(0, 10) === todayStr);
-        if (_haveRecord){
+        const today = format(new Date(), 'yyyy-MM-dd')
+        const _haveRecord = currentUserExpenses.find((expense: expenseInterface) => format(expense.date, 'yyyy-MM-dd') === today);
+        if (_haveRecord) {
             setHaveRecord(true);
-        }else{
+        } else {
             setHaveRecord(false);
         }
     }
@@ -90,7 +98,7 @@ export const ExpenseDashboard = () => {
     }, [])
 
     useEffect(() => {
-        console.log('user is', user)
+        // console.log('user is', user)
         getExpenses();
     },)
 
@@ -118,7 +126,7 @@ export const ExpenseDashboard = () => {
                     <Group className={classes.item}>
                         <Text size='lg' fw={400}>Coffee</Text>
                         <Stack gap={0}>
-                            <Text size='md'>${newCoffeeExpense}/week</Text>
+                            <Text size='md'>${newCoffeeExpense} / week</Text>
                             <Text size='sm'>{
                                 coffeeWOW > 0
                                     ? `${(Number(coffeeWOW.toFixed(2)) * 100)}% above average`
@@ -131,7 +139,7 @@ export const ExpenseDashboard = () => {
                     <Group className={classes.item}>
                         <Text size='lg' fw={400}>Food</Text>
                         <Stack gap={0}>
-                            <Text size='md'>${newFoodExpense}</Text>
+                            <Text size='md'>${newFoodExpense} / week</Text>
                             <Text size='sm'>
                                 {
                                     foodWOW > 0
@@ -145,7 +153,7 @@ export const ExpenseDashboard = () => {
                     <Group className={classes.item}>
                         <Text size='lg' fw={400}>Alcohol</Text>
                         <Stack gap={0}>
-                            <Text size='md'>${newAlcoholExpense}</Text>
+                            <Text size='md'>${newAlcoholExpense} / week</Text>
                             <Text size='sm'>
                                 {
                                     alcoholWOW > 0
@@ -159,11 +167,11 @@ export const ExpenseDashboard = () => {
                 </Stack>
             </Stack>
             <Stack>
-                <Link href={ haveRecord ? '/edit' :'/add'}><Button variant='filled'>
+                <Link href={haveRecord ? '/edit' : '/add'}><Button variant='filled'>
                     {
                         haveRecord ? 'Edit expenses' : 'Add expenses'
                     }
-                    </Button></Link>
+                </Button></Link>
             </Stack>
         </Group>
     )

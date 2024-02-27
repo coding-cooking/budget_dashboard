@@ -4,23 +4,23 @@ import { Button, Center, Code, Group, Stack, Text, TextInput } from '@mantine/co
 import { useForm } from '@mantine/form';
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import classes from './Form.module.css';
+
+export type valuesInterface = {
+    coffee: number, 
+    food: number,
+    alcohol: number,
+}
 
 type FormProps = {
     coffeeExpense: number,
     foodExpense: number,
     alcoholExpense: number,
-    setCoffeeExpense: (arg: number) => void,
-    setFoodExpense: (arg: number) => void,
-    setAlcoholExpense: (arg: number) => void,
-    submitting: boolean,
-    handleSubmit: () => void
+    handleSubmit: (values: valuesInterface) => void
 }
 
-export const Form = ({ coffeeExpense, foodExpense, alcoholExpense, setCoffeeExpense, setFoodExpense, setAlcoholExpense, submitting, handleSubmit }: FormProps) => {
-    const [submittedValues, setSubmittedValues] = useState('');
-    const router = useRouter();
+export const Form = ({ coffeeExpense, foodExpense, alcoholExpense, handleSubmit }: FormProps) => {
     const form = useForm({
         initialValues: {
             coffee: coffeeExpense,
@@ -33,15 +33,6 @@ export const Form = ({ coffeeExpense, foodExpense, alcoholExpense, setCoffeeExpe
             alcohol: Number(values.alcohol),
         }),
     });
-
-    useEffect(() => {
-        console.log('$$$$$',coffeeExpense,foodExpense,alcoholExpense);
-        console.log('&&&&&', submittedValues);
-        console.log('&&&&&', submittedValues['coffee']);
-        setCoffeeExpense(submittedValues['coffee']);
-        setFoodExpense(submittedValues['food']);
-        setAlcoholExpense(submittedValues['alcohol']);
-    }, [submittedValues])
 
     return (
         <Center style={{ width: '100%', height: '100%' }}>
@@ -56,12 +47,9 @@ export const Form = ({ coffeeExpense, foodExpense, alcoholExpense, setCoffeeExpe
                 <Text size='xl' fw={700}>
                     How much did I spend today?
                 </Text>
-                <form onSubmit={form.onSubmit((values) => {
-                    setSubmittedValues(JSON.stringify(values, null, 2));
-                    handleSubmit();
-                })} >
+                <form onSubmit={form.onSubmit((values:valuesInterface) => handleSubmit(values))} >
                     <Stack>
-                        <TextInput label='Coffee' type='number' min={1} max={100}  {...form.getInputProps('coffee')}/>
+                        <TextInput label='Coffee' type='number' min={1} max={100}  {...form.getInputProps('coffee')} />
                         <TextInput label='Food' type='number' min={1} max={100} {...form.getInputProps('food')} />
                         <TextInput label='Alcohol' type='number' min={1} max={100} {...form.getInputProps('alcohol')} />
                     </Stack>
@@ -70,12 +58,10 @@ export const Form = ({ coffeeExpense, foodExpense, alcoholExpense, setCoffeeExpe
                         <Button
                             type='submit'
                             variant='filled'
-                        // onClick={() => { router.push('/') }}
                         >
                             Add expenses</Button>
                     </Group>
                 </form>
-                {submittedValues && <Code block>{submittedValues}</Code>}
             </Stack>
         </Center>
     )

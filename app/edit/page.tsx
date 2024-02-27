@@ -28,6 +28,7 @@ export default function EditExpenses() {
             dd = Number(dd) < 10 ? `0${dd}` : dd;
             const todayStr = `${yyyy}-${mm}-${dd}`;
             const ExpenseofToday = data.filter(expense => expense.user_id === Number(user.value) && expense.date.toString().slice(0, 10) === todayStr);
+            console.log("jintiandexiaofeishi", ExpenseofToday)
             setCoffeeExpense(ExpenseofToday[0].coffee_expense);
             setFoodExpense(ExpenseofToday[0].food_expense);
             setAlcoholExpense(ExpenseofToday[0].alcohol_expense);
