@@ -1,11 +1,13 @@
 'use client'
 
-import { Form } from '@/components/Form/Form';
+import { expenseInterface } from '@/components/ExpenseDashboard/Dashboard';
+import { Form, valuesInterface } from '@/components/Form/Form';
 import { useUserContext } from '@/context/user';
+import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-export default function EditExpenses() {
+export default function EditExpenses(values: valuesInterface) {
     const [submitting, setSubmitting] = useState<boolean>(false);
     const router = useRouter();
     const [coffeeExpense, setCoffeeExpense] = useState<number>(0);
@@ -20,14 +22,9 @@ export default function EditExpenses() {
                 throw new Error(`Error: ${response.status}`);
             }
             const data = await response.json();
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            let mm = (today.getMonth() + 1).toString();
-            let dd = (today.getDate() - 2).toString();
-            mm = Number(mm) < 10 ? `0${mm}` : mm;
-            dd = Number(dd) < 10 ? `0${dd}` : dd;
-            const todayStr = `${yyyy}-${mm}-${dd}`;
-            const ExpenseofToday = data.filter(expense => expense.user_id === Number(user.value) && expense.date.toString().slice(0, 10) === todayStr);
+            const today = format(new Date(), 'yyyy-MM-dd');
+            console.log("$$$$$$",today)
+            const ExpenseofToday = data.filter((expense: expenseInterface) => Number(expense.user_id) === Number(user.value) && format(expense.date, 'yyyy-MM-dd') === today);
             console.log("jintiandexiaofeishi", ExpenseofToday)
             setCoffeeExpense(ExpenseofToday[0].coffee_expense);
             setFoodExpense(ExpenseofToday[0].food_expense);
@@ -50,9 +47,9 @@ export default function EditExpenses() {
                 body: JSON.stringify({
                     user_id: user.value.toString(),
                     date: new Date(),
-                    coffee_expense: coffeeExpense,
-                    food_expense: foodExpense,
-                    alcohol_expense: alcoholExpense,
+                    coffee_expense: values.coffee,
+                    food_expense: values.food,
+                    alcohol_expense: values.alcohol,
                 })
             });
             if (response.ok) {
@@ -68,14 +65,9 @@ export default function EditExpenses() {
     
 
     return <Form
-
         coffeeExpense={coffeeExpense}
         foodExpense={foodExpense}
         alcoholExpense={alcoholExpense}
-        setCoffeeExpense={setCoffeeExpense}
-        setFoodExpense={setFoodExpense}
-        setAlcoholExpense={setAlcoholExpense}
-        submitting={submitting}
         handleSubmit={editExpense}
     />
 }

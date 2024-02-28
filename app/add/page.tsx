@@ -2,6 +2,7 @@
 
 import { Form, valuesInterface } from '@/components/Form/Form';
 import { useUserContext } from '@/context/user';
+import { format, parseISO } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -17,11 +18,13 @@ export default function AddExpenses() {
     const createExpense = async (values:valuesInterface) => {
         setSubmitting(true);
         try{
+            const _date = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
+            const parsedDate = parseISO(_date);
             const response = await fetch('api/expenses/new',{
                 method: 'post',
                 body: JSON.stringify({
                     user_id: user.value.toString(),
-                    date: new Date(),
+                    date: parsedDate,
                     coffee_expense: values.coffee,
                     food_expense: values.food,
                     alcohol_expense: values.alcohol,

@@ -5,7 +5,20 @@ import Link from 'next/link';
 import classes from './Dashboard.module.css';
 import { useEffect, useState } from 'react';
 import { useUserContext } from '@/context/user';
-import { compareAsc, format } from 'date-fns';
+import { compareAsc, format, parseISO } from 'date-fns';
+
+type userInterface = {
+    user_id: string,
+}
+
+export type expenseInterface = {
+    id: string,
+    user_id: string,
+    date: Date,
+    coffee_expense: number,
+    food_expense: number,
+    alcohol_expense: number,
+}
 
 export const ExpenseDashboard = () => {
     const [users, setUsers] = useState(null);
@@ -17,19 +30,6 @@ export const ExpenseDashboard = () => {
     const [newAlcoholExpense, setNewAlcoholExpense] = useState<number>(0);
     const [alcoholWOW, setAlcoholWOW] = useState<number>(0);
     const [haveRecord, setHaveRecord] = useState<boolean>(false);
-
-    type userInterface = {
-        user_id: string,
-    }
-
-    type expenseInterface = {
-        id: string,
-        user_id: string,
-        date: Date,
-        coffee_expense: number,
-        food_expense: number,
-        alcohol_expense: number,
-    }
 
     const getUsers = async () => {
         const response = await fetch('api/users');
@@ -50,7 +50,8 @@ export const ExpenseDashboard = () => {
         const currentUserExpenses = data.filter((expense: expenseInterface) => Number(expense.user_id) === Number(user?.value));
         const sortedCurrentUserExpenses = currentUserExpenses.sort((a: expenseInterface, b: expenseInterface) => compareAsc(new Date(a.date), new Date(b.date)));
         const newExpenses = sortedCurrentUserExpenses.slice(-7);
-        // console.log('new expenses are', newExpenses[0].date);
+        // console.log('new expenses are', newExpenses);
+        // console.log(format(new Date(), 'yyyy-MM-dd'));
         const prevExpenses = sortedCurrentUserExpenses.slice(Math.max(0, sortedCurrentUserExpenses.length - 8 - 7), sortedCurrentUserExpenses.length - 8 + 1);
         // console.log('prev expenses are', prevExpenses);
 
@@ -85,12 +86,14 @@ export const ExpenseDashboard = () => {
         setAlcoholWOW(_alcoholWoW);
 
         const today = format(new Date(), 'yyyy-MM-dd')
-        const _haveRecord = currentUserExpenses.find((expense: expenseInterface) => format(expense.date, 'yyyy-MM-dd') === today);
+        const _haveRecord = currentUserExpenses.find(
+            (expense: expenseInterface) => format(expense.date, 'yyyy-MM-dd') === today);
         if (_haveRecord) {
             setHaveRecord(true);
         } else {
             setHaveRecord(false);
         }
+
     }
 
     useEffect(() => {
