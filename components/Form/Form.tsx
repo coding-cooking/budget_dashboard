@@ -1,14 +1,13 @@
 'use client'
 
-import { Button, Center, Code, Group, Stack, Text, TextInput } from '@mantine/core';
+import { Button, Center, Group, Stack, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import Link from "next/link";
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import classes from './Form.module.css';
+import { useEffect } from 'react';
 
 export type valuesInterface = {
-    coffee: number, 
+    coffee: number,
     food: number,
     alcohol: number,
 }
@@ -21,7 +20,15 @@ type FormProps = {
 }
 
 export const Form = ({ coffeeExpense, foodExpense, alcoholExpense, handleSubmit }: FormProps) => {
-    const form = useForm({
+    useEffect(() => {
+        form.setValues({
+            coffee: coffeeExpense,
+            food: foodExpense,
+            alcohol: alcoholExpense,
+        })
+    }, [coffeeExpense, foodExpense, alcoholExpense])
+
+    const form = useForm<valuesInterface>({
         initialValues: {
             coffee: coffeeExpense,
             food: foodExpense,
@@ -47,7 +54,7 @@ export const Form = ({ coffeeExpense, foodExpense, alcoholExpense, handleSubmit 
                 <Text size='xl' fw={700}>
                     How much did I spend today?
                 </Text>
-                <form onSubmit={form.onSubmit((values:valuesInterface) => handleSubmit(values))} >
+                <form onSubmit={form.onSubmit((values: valuesInterface) => handleSubmit(values))} >
                     <Stack>
                         <TextInput label='Coffee' type='number' min={1} max={100}  {...form.getInputProps('coffee')} />
                         <TextInput label='Food' type='number' min={1} max={100} {...form.getInputProps('food')} />

@@ -36,12 +36,6 @@ export default function EditExpenses() {
         if (user) getExpenseDetails();
     },[])
 
-    useEffect(()=> {
-        console.log('.....',coffeeExpense);
-        console.log('.....', foodExpense);
-        console.log('.....', alcoholExpense);
-    }, [coffeeExpense, foodExpense, alcoholExpense])
-
     const editExpense = async (values: valuesInterface) => {
         setSubmitting(true);
         const parsedDate = formatInTimeZone(new Date(), 'Australia/Sydney', 'yyyy-MM-dd HH:mm:ss');

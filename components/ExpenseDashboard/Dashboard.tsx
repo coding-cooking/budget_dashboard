@@ -86,7 +86,6 @@ export const ExpenseDashboard = () => {
         // console.log('....', _alcoholWoW);
         setAlcoholWOW(_alcoholWoW);
 
-        // const today = format(new Date(), 'yyyy-MM-dd');
         const today = format(new Date(),  'yyyy-MM-dd');
         const _haveRecord = currentUserExpenses.find(
             (expense: expenseInterface) => format(parseISO(expense.date.toLocaleString()), 'yyyy-MM-dd') === today);
@@ -95,10 +94,6 @@ export const ExpenseDashboard = () => {
         } else {
             setHaveRecord(false);
         }
-        console.log('havehave', haveRecord);
-        console.log('today',today)
-
-
     }
 
     useEffect(() => {
