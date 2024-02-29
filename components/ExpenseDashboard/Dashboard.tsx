@@ -5,7 +5,8 @@ import Link from 'next/link';
 import classes from './Dashboard.module.css';
 import { useEffect, useState } from 'react';
 import { useUserContext } from '@/context/user';
-import { compareAsc, format, parseISO } from 'date-fns';
+import { compareAsc, format, parse, parseISO } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 
 type userInterface = {
     user_id: string,
@@ -85,14 +86,18 @@ export const ExpenseDashboard = () => {
         // console.log('....', _alcoholWoW);
         setAlcoholWOW(_alcoholWoW);
 
-        const today = format(new Date(), 'yyyy-MM-dd')
+        // const today = format(new Date(), 'yyyy-MM-dd');
+        const today = format(new Date(),  'yyyy-MM-dd');
         const _haveRecord = currentUserExpenses.find(
-            (expense: expenseInterface) => format(expense.date, 'yyyy-MM-dd') === today);
+            (expense: expenseInterface) => format(parseISO(expense.date.toLocaleString()), 'yyyy-MM-dd') === today);
         if (_haveRecord) {
             setHaveRecord(true);
         } else {
             setHaveRecord(false);
         }
+        console.log('havehave', haveRecord);
+        console.log('today',today)
+
 
     }
 
