@@ -108,6 +108,7 @@ export const ExpenseDashboard = () => {
                     placeholder='Select a user'
                     data={users}
                     defaultValue="91235"
+                    value={user.value}
                     onChange={(_value, option) => setUser(prev => option)}
                 />
                 <Stack>
