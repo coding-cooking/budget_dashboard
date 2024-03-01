@@ -22,7 +22,7 @@ export type expenseInterface = {
 }
 
 export const ExpenseDashboard = () => {
-    const [users, setUsers] = useState(null);
+    const [users, setUsers] = useState<userInterface[] | undefined>(undefined);
     const { user, setUser } = useUserContext();
     const [newCoffeeExpense, setNewCoffeeExpense] = useState<number>(0);
     const [coffeeWOW, setCoffeeWOW] = useState<number>(0);
@@ -38,9 +38,16 @@ export const ExpenseDashboard = () => {
             throw new Error(`Error: ${response.status}`);
         }
         const data = await response.json();
+        console.log('data is', data);
         const userIds = data.map((user: userInterface) => (user.user_id).toString());
         setUsers(userIds);
     }
+
+    //the data structure of users from databse is diff from the form select
+    const transformedUsers = users?.map(user => ({
+        label: user.user_id,
+        value: user.user_id,
+    }))
 
     const getExpenses = async () => {
         const response = await fetch('api/expenses');
@@ -48,45 +55,33 @@ export const ExpenseDashboard = () => {
             throw new Error(`Error: ${response.status}`);
         }
         const data = await response.json();
+
+        //new and previous expense of the current user 
         const currentUserExpenses = data.filter((expense: expenseInterface) => Number(expense.user_id) === Number(user?.value));
         const sortedCurrentUserExpenses = currentUserExpenses.sort((a: expenseInterface, b: expenseInterface) => compareAsc(new Date(a.date), new Date(b.date)));
         const newExpenses = sortedCurrentUserExpenses.slice(-7);
-        // console.log('new expenses are', newExpenses);
-        // console.log(format(new Date(), 'yyyy-MM-dd'));
         const prevExpenses = sortedCurrentUserExpenses.slice(Math.max(0, sortedCurrentUserExpenses.length - 8 - 7), sortedCurrentUserExpenses.length - 8 + 1);
-        // console.log('prev expenses are', prevExpenses);
 
-        //coffee expense
-        const _new_coffee_expense = newExpenses.reduce((prev: number, cur: expenseInterface) => prev + Number(cur.coffee_expense), 0);
-        // console.log(_new_coffee_expense);
-        setNewCoffeeExpense(_new_coffee_expense);
-        const prev_coffee_expense = prevExpenses.reduce((prev: number, cur: expenseInterface) => prev + Number(cur.coffee_expense), 0);
-        // console.log(prev_coffee_expense);
-        const _coffeeWoW = (newCoffeeExpense / 7 - (prev_coffee_expense / prevExpenses.length)) / (newCoffeeExpense / 7);
-        // console.log('....', _coffeeWoW);
-        setCoffeeWOW(_coffeeWoW);
+        //calculate the expense week on week
+        const calculateWOw = (
+            newExpenses: expenseInterface[],
+            prevExpenses: expenseInterface[],
+            setNewExpense: (value: number) => void,
+            setExpenseWOW: (value: number) => void,
+            expenseType: 'coffee_expense' | 'food_expense' | 'alcohol_expense',
+        ) => {
+            const newExpense = newExpenses.reduce((prev: number, cur: expenseInterface) => prev + Number(cur[expenseType]), 0);
+            setNewExpense(newExpense)
+            const prevExpense = prevExpenses.reduce((prev: number, cur: expenseInterface) => prev + Number(cur[expenseType]), 0);
+            const expenseWoW = (newExpense / 7 - (prevExpense / prevExpenses.length)) / (newExpense / 7);
+            setExpenseWOW(expenseWoW);
+        }
+        calculateWOw(newExpenses, prevExpenses, setNewCoffeeExpense, setCoffeeWOW, 'coffee_expense');
+        calculateWOw(newExpenses, prevExpenses, setNewFoodExpense, setFoodWOW, 'food_expense');
+        calculateWOw(newExpenses, prevExpenses, setNewAlcoholExpense, setAlcoholWOW, 'alcohol_expense');
 
-        //food expense
-        const _new_food_expense = newExpenses.reduce((prev: number, cur: expenseInterface) => prev + Number(cur.food_expense), 0);
-        // console.log('food', _new_food_expense);
-        setNewFoodExpense(_new_food_expense);
-        const prev_food_expense = prevExpenses.reduce((prev: number, cur: expenseInterface) => prev + Number(cur.food_expense), 0);
-        // console.log(prev_food_expense);
-        const _foodWoW = (newFoodExpense / 7 - (prev_food_expense / prevExpenses.length)) / (newFoodExpense / 7);
-        // console.log('....', _foodWoW);
-        setFoodWOW(_foodWoW);
-
-        //alcohol expense
-        const _new_alcohol_expense = newExpenses.reduce((prev: number, cur: expenseInterface) => prev + Number(cur.alcohol_expense), 0);
-        // console.log('alcohol', _new_alcohol_expense);
-        setNewAlcoholExpense(_new_alcohol_expense);
-        const prev_alcohol_expense = prevExpenses.reduce((prev: number, cur: expenseInterface) => prev + Number(cur.alcohol_expense), 0);
-        // console.log(prev_alcohol_expense);
-        const _alcoholWoW = (newAlcoholExpense / 7 - (prev_alcohol_expense / prevExpenses.length)) / (newAlcoholExpense / 7);
-        // console.log('....', _alcoholWoW);
-        setAlcoholWOW(_alcoholWoW);
-
-        const today = format(new Date(),  'yyyy-MM-dd');
+        //if there is record of today
+        const today = format(new Date(), 'yyyy-MM-dd');
         const _haveRecord = currentUserExpenses.find(
             (expense: expenseInterface) => format(parseISO(expense.date.toLocaleString()), 'yyyy-MM-dd') === today);
         if (_haveRecord) {
@@ -98,12 +93,13 @@ export const ExpenseDashboard = () => {
 
     useEffect(() => {
         getUsers();
-    }, [])
+        console.log('user is', user);
+        console.log(haveRecord);
+    }, [user])
 
     useEffect(() => {
-        // console.log('user is', user)
         getExpenses();
-    },)
+    }, [])
 
     return (
         <Group
@@ -117,9 +113,9 @@ export const ExpenseDashboard = () => {
             <Stack>
                 <Select
                     placeholder='Select a user'
-                    data={users}
+                    data={transformedUsers}
                     defaultValue="91235"
-                    onChange={(_value, option) => setUser(option)}
+                    onChange={(_value, option) => setUser(prev => option)}
                 />
                 <Stack>
                     <Text size='xl' fw={700}>Am I spend too much?</Text>

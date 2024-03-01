@@ -4,7 +4,6 @@ import { expenseInterface } from '@/components/ExpenseDashboard/Dashboard';
 import { Form, valuesInterface } from '@/components/Form/Form';
 import { useUserContext } from '@/context/user';
 import { format, parseISO } from 'date-fns';
-import { formatInTimeZone } from 'date-fns-tz';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -25,20 +24,22 @@ export default function EditExpenses() {
             }
             const data = await response.json();
             const today = format(new Date(), 'yyyy-MM-dd');
-            console.log("$$$$$$",today)
+            console.log("$$$$$$",today,user)
             const ExpenseofToday = data.filter((expense: expenseInterface) => Number(expense.user_id) === Number(user.value) && format(parseISO(expense.date.toLocaleString()), 'yyyy-MM-dd') === today);
-            console.log("jintiandexiaofeishi", ExpenseofToday[0].id)
-            setCoffeeExpense(ExpenseofToday[0].coffee_expense);
-            setFoodExpense(ExpenseofToday[0].food_expense);
-            setAlcoholExpense(ExpenseofToday[0].alcohol_expense);
-            setExpenseId(ExpenseofToday[0].id);
+            if (ExpenseofToday){
+                console.log("jintiandexiaofeishi", ExpenseofToday);
+                setCoffeeExpense(ExpenseofToday[0].coffee_expense);
+                setFoodExpense(ExpenseofToday[0].food_expense);
+                setAlcoholExpense(ExpenseofToday[0].alcohol_expense);
+                setExpenseId(ExpenseofToday[0].id);
+            }
         }
         if (user) getExpenseDetails();
     },[])
 
     const editExpense = async (values: valuesInterface) => {
         setSubmitting(true);
-        const parsedDate = formatInTimeZone(new Date(), 'Australia/Sydney', 'yyyy-MM-dd HH:mm:ss');
+        const parsedDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
         try {
             const response = await fetch('api/expenses/update', {
                 method: 'put',
