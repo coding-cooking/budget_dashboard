@@ -5,8 +5,7 @@ import Link from 'next/link';
 import classes from './Dashboard.module.css';
 import { useEffect, useState } from 'react';
 import { useUserContext } from '@/context/user';
-import { compareAsc, format, parse, parseISO } from 'date-fns';
-import { formatInTimeZone } from 'date-fns-tz';
+import { compareAsc, format, parseISO } from 'date-fns';
 
 type userInterface = {
     user_id: string,
@@ -38,15 +37,14 @@ export const ExpenseDashboard = () => {
             throw new Error(`Error: ${response.status}`);
         }
         const data = await response.json();
-        console.log('data is', data);
         const userIds = data.map((user: userInterface) => (user.user_id).toString());
         setUsers(userIds);
     }
 
     //the data structure of users from databse is diff from the form select
     const transformedUsers = users?.map(user => ({
-        label: user.user_id,
-        value: user.user_id,
+        label: user,
+        value: user,
     }))
 
     const getExpenses = async () => {
@@ -70,10 +68,10 @@ export const ExpenseDashboard = () => {
             setExpenseWOW: (value: number) => void,
             expenseType: 'coffee_expense' | 'food_expense' | 'alcohol_expense',
         ) => {
-            const newExpense = newExpenses.reduce((prev: number, cur: expenseInterface) => prev + Number(cur[expenseType]), 0);
-            setNewExpense(newExpense)
+            const _newExpense = newExpenses.reduce((prev: number, cur: expenseInterface) => prev + Number(cur[expenseType]), 0);
+            setNewExpense(_newExpense);
             const prevExpense = prevExpenses.reduce((prev: number, cur: expenseInterface) => prev + Number(cur[expenseType]), 0);
-            const expenseWoW = (newExpense / 7 - (prevExpense / prevExpenses.length)) / (newExpense / 7);
+            const expenseWoW = (_newExpense / 7 - (prevExpense / prevExpenses.length)) / (_newExpense / 7);
             setExpenseWOW(expenseWoW);
         }
         calculateWOw(newExpenses, prevExpenses, setNewCoffeeExpense, setCoffeeWOW, 'coffee_expense');
@@ -93,13 +91,8 @@ export const ExpenseDashboard = () => {
 
     useEffect(() => {
         getUsers();
-        console.log('user is', user);
-        console.log(haveRecord);
-    }, [user])
-
-    useEffect(() => {
         getExpenses();
-    }, [])
+    }, [user])
 
     return (
         <Group
@@ -113,7 +106,7 @@ export const ExpenseDashboard = () => {
             <Stack>
                 <Select
                     placeholder='Select a user'
-                    data={transformedUsers}
+                    data={users}
                     defaultValue="91235"
                     onChange={(_value, option) => setUser(prev => option)}
                 />
@@ -128,8 +121,8 @@ export const ExpenseDashboard = () => {
                             <Text size='md'>${newCoffeeExpense} / week</Text>
                             <Text size='sm'>{
                                 coffeeWOW > 0
-                                    ? `${(Number(coffeeWOW.toFixed(2)) * 100)}% above average`
-                                    : `${(Number(coffeeWOW.toFixed(2)) * -100)}% below average`
+                                    ? `${Number((coffeeWOW * 100).toFixed(2))}% above average`
+                                    : `${Number((coffeeWOW * -100).toFixed(2))}% below average`
                             }
                             </Text>
                         </Stack>
@@ -142,8 +135,8 @@ export const ExpenseDashboard = () => {
                             <Text size='sm'>
                                 {
                                     foodWOW > 0
-                                        ? `${(Number(foodWOW.toFixed(2)) * 100)}% above average`
-                                        : `${(Number(foodWOW.toFixed(2)) * -100)}% below average`
+                                        ? `${Number((foodWOW * 100).toFixed(2))}% above average`
+                                        : `${Number((foodWOW * -100).toFixed(2))}% below average`
                                 }
                             </Text>
                         </Stack>
@@ -156,8 +149,8 @@ export const ExpenseDashboard = () => {
                             <Text size='sm'>
                                 {
                                     alcoholWOW > 0
-                                        ? `${(Number(alcoholWOW.toFixed(2)) * 100)}% above average`
-                                        : `${(Number(alcoholWOW.toFixed(2)) * -100)}% below average`
+                                        ? `${Number((alcoholWOW * 100).toFixed(2))}% above average`
+                                        : `${Number((alcoholWOW * -100).toFixed(2))}% below average`
                                 }
                             </Text>
                         </Stack>
