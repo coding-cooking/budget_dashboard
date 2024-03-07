@@ -118,7 +118,7 @@ export const ExpenseDashboard = () => {
                 <Stack gap={60}>
                     <Group className={classes.item}>
                         <Text size='lg' fw={400} w={80}>Coffee</Text>
-                        <Stack gap={0}>
+                        <Stack gap={0} w={180}>
                             <Text size='md'>${newCoffeeExpense} / week</Text>
                             <Text size='sm'>{
                                 coffeeWOW > 0
@@ -131,7 +131,7 @@ export const ExpenseDashboard = () => {
 
                     <Group className={classes.item}>
                         <Text size='lg' fw={400} w={80}>Food</Text>
-                        <Stack gap={0}>
+                        <Stack gap={0} w={180}>
                             <Text size='md'>${newFoodExpense} / week</Text>
                             <Text size='sm'>
                                 {
@@ -145,7 +145,7 @@ export const ExpenseDashboard = () => {
 
                     <Group className={classes.item}>
                         <Text size='lg' fw={400} w={80}>Alcohol</Text>
-                        <Stack gap={0}>
+                        <Stack gap={0} w={180}>
                             <Text size='md'>${newAlcoholExpense} / week</Text>
                             <Text size='sm'>
                                 {

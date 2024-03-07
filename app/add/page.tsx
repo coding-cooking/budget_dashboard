@@ -31,7 +31,6 @@ export default function AddExpenses() {
                 })
             });
             if (response.ok) {
-                console.log('______', values.coffee, values.food, values.alcohol)
                 setCoffeeExpense(prevCoffee => values.coffee);
                 setFoodExpense(prevFood => values.food);
                 setAlcoholExpense(prevAlcohol => values.alcohol); 
@@ -45,7 +44,6 @@ export default function AddExpenses() {
     }
 
     useEffect(()=> {
-        console.log('hahahhahha', coffeeExpense, foodExpense, alcoholExpense)
     }, [coffeeExpense, foodExpense, alcoholExpense])
 
     return <Form

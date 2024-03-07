@@ -9,7 +9,6 @@ const pool = new Pool({
 export async function getPoolClient() {
     try {
         const client = await pool.connect();
-        console.log("PostgrSQL connected")
         return client;
     } catch (error) {
         console.error('Failed to connect to PostgreSQL', error);

@@ -24,10 +24,8 @@ export default function EditExpenses() {
             }
             const data = await response.json();
             const today = format(new Date(), 'yyyy-MM-dd');
-            console.log("$$$$$$",today,user)
             const ExpenseofToday = data.filter((expense: expenseInterface) => Number(expense.user_id) === Number(user.value) && format(parseISO(expense.date.toLocaleString()), 'yyyy-MM-dd') === today);
             if (ExpenseofToday){
-                console.log("jintiandexiaofeishi", ExpenseofToday);
                 setCoffeeExpense(ExpenseofToday[0].coffee_expense);
                 setFoodExpense(ExpenseofToday[0].food_expense);
                 setAlcoholExpense(ExpenseofToday[0].alcohol_expense);
@@ -55,8 +53,6 @@ export default function EditExpenses() {
                     "Content-Type": "application/json",
                 },
             });
-            console.log('Response from server:', response);
-            console.log('update', values.coffee, values.food, values.alcohol,)
             if (response.ok) {
                 router.push('/');
             }

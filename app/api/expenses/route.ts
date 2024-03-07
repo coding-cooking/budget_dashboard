@@ -8,7 +8,6 @@ export const GET = async (req: NextRequest) => {
     try {
         client = await getPoolClient();
         const response = await client.query('SELECT * FROM expenses');
-        // console.log(response.rows);
         return new Response(JSON.stringify(response.rows), {
             status: 200
         })
